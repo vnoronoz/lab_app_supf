@@ -160,8 +160,9 @@ def historic_review(historic_data, analysis_data, cod_stations, param_columns):
 
 # Initialize connection.
 # Uses st.experimental_singleton to only run once.
-@st.experimental_singleton
+
 def init_connection():
+    
     return psycopg2.connect(**st.secrets["postgresql"])
 
 
@@ -215,18 +216,20 @@ def plot_regression(df, x, y, title, color=''):
     return
 
 
-@st.experimental_memo(ttl=600)
 def run_query(query, conn):
+    
     with conn.cursor() as cur:
+        
         cur.execute(query)
-        return cur.fetchall()
+        
+        return (pd.DataFrame(cur.fetchall()))
     
 
 def query_field_data(min_date, max_date):
 
     # SQL query para la consulta a la tabla de muestreos de campo
-    query = """SELECT cod_estacion, hora, ta_aire, ta_agua, ph,\
-    conductividad, od_percent, od_ppm, caudal FROM red_calidad.rios_campo\
+    query = """SELECT cod_estacion, ta_agua, ph,\
+    conductividad, od_percent, od_ppm FROM red_calidad.rios_campo\
     WHERE fecha::date >= '{}' AND fecha::date <= '{}'""".format(min_date, max_date)
         
     return query
@@ -237,19 +240,6 @@ def query_db_tables(query_string, connection):
     df = pd.read_sql_query(query_string, con=connection)
         
     return df
-
-
-def rename_cols_field_data(df):
-    
-    renamed = df.rename(columns = {
-        df.columns[0]: 'est',
-        df.columns[4]: 'ph_insitu',
-        df.columns[5]: 'cond_insitu',
-        df.columns[6]: 'o2percent_insitu',
-        df.columns[7]: 'o2_insitu'
-        })
-    
-    return renamed
 
 
 def rename_cols_original_file(df):

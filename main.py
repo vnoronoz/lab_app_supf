@@ -11,12 +11,13 @@ import streamlit as st
 import plotly.io as pio
 import warnings
 
-pio.templates.default = "plotly_white"
-pd.options.mode.chained_assignment = None
-warnings.simplefilter(action='ignore', category=UserWarning) 
-
 
 st.set_page_config(page_title='ANALITICAS RIOS')
+pio.templates.default = "plotly_white"
+pd.options.mode.chained_assignment = None
+warnings.simplefilter(action='ignore', category=UserWarning)
+
+
 st.header(':droplet: Revisión muestreos aguas superficiales')
 
 st.write(':microscope: RESULTADOS LABORATORIO:')
@@ -41,8 +42,10 @@ if LAB_FILE is not None:
 
         QUERY_EST = """SELECT est, nombre FROM red_calidad.estaciones_rios"""
         QUERY_HISTORIC ="""SELECT est, ph_lab, cond_lab, mat_org, cl, so4, no3, no2, nh4, ptot, po4, solidos_susp, tic, toc, dbo5, e_coli, coliformes_totales, dureza, ca, mg, co3, co3h, na, k, as_, cd, cr, cu, fe, hg, mn, ni, pb, se, zn FROM red_calidad.historic_rios"""
-        data_est = f.run_query(QUERY_EST, DB_CONNECTION)        
+        data_est = f.run_query(QUERY_EST, DB_CONNECTION)
+        data_est.columns = ['est','nombre']
         data_hist = f.run_query(QUERY_HISTORIC, DB_CONNECTION)
+        data_hist.columns = ['est','ph_lab','cond_lab','mat_org','cl','so4','no3','no2','nh4','ptot','po4','solidos_susp','tic','toc','dbo5','e_coli','coliformes_totales','dureza','ca','mg','co3','co3h','na','k','as_','cd','cr','cu','fe','hg','mn','ni','pb','se','zn']
 
         data = pd.read_excel(LAB_FILE, converters={'Código':str})
         data_r = f.rename_cols_original_file(data)
@@ -54,9 +57,9 @@ if LAB_FILE is not None:
         QUERY_FIELD = f.query_field_data(MIN_DAY, MAX_DAY)
 
         data_field = f.run_query(QUERY_FIELD, DB_CONNECTION)
-        df_field = f.rename_cols_field_data(data_field)
-        f.delete_no_samples(df_field)
-        df_data = f.join_dfs(df_field, df_lab, 'est', 'inner')
+        data_field.columns = ['est','ta_agua','ph_insitu','cond_insitu','o2percent_insitu','o2_insitu']        
+        f.delete_no_samples(data_field)
+        df_data = f.join_dfs(data_field, df_lab, 'est', 'inner')
         df_all = f.join_dfs(df_data, data_est, 'est', 'inner')
         CODE_LIST = df_all['est'].unique().tolist()
 
