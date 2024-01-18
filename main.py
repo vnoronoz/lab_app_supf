@@ -33,8 +33,7 @@ if LAB_FILE is not None:
         
     if st.button('VERIFICAR'):        
         
-        DB_CONN_STRING = 'postgresql://editor:editor123@10.242.134.47:5432/hidrologia'
-        DB_CONNECTION = f.database_conn(DB_CONN_STRING)       
+        DB_CONNECTION = f.database_conn()       
         
         PROCESSING_COLS = ['ph_lab','cond_lab','mat_org','cl','so4','no3','no2','nh4','ptot','po4','solidos_susp',
                    'tic','toc','dbo5','e_coli','coliformes_totales','dureza','ca','mg','co3','co3h','na',
@@ -42,8 +41,8 @@ if LAB_FILE is not None:
 
         QUERY_EST = """SELECT est, nombre FROM red_calidad.estaciones_rios"""
         QUERY_HISTORIC ="""SELECT est, ph_lab, cond_lab, mat_org, cl, so4, no3, no2, nh4, ptot, po4, solidos_susp, tic, toc, dbo5, e_coli, coliformes_totales, dureza, ca, mg, co3, co3h, na, k, as_, cd, cr, cu, fe, hg, mn, ni, pb, se, zn FROM red_calidad.historic_rios"""
-        data_est = f.query_db_tables(QUERY_EST, DB_CONNECTION)
-        data_hist = f.query_db_tables(QUERY_HISTORIC, DB_CONNECTION)
+        data_est = f.run_query(QUERY_EST, DB_CONNECTION)        
+        data_hist = f.run_query(QUERY_HISTORIC, DB_CONNECTION)
 
         data = pd.read_excel(LAB_FILE, converters={'Código':str})
         data_r = f.rename_cols_original_file(data)
@@ -54,7 +53,7 @@ if LAB_FILE is not None:
         MIN_DAY, MAX_DAY = f.get_dates(df_lab)
         QUERY_FIELD = f.query_field_data(MIN_DAY, MAX_DAY)
 
-        data_field = f.query_db_tables(QUERY_FIELD, DB_CONNECTION)
+        data_field = f.run_query(QUERY_FIELD, DB_CONNECTION)
         df_field = f.rename_cols_field_data(data_field)
         f.delete_no_samples(df_field)
         df_data = f.join_dfs(df_field, df_lab, 'est', 'inner')

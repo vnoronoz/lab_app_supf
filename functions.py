@@ -8,9 +8,10 @@ Created on Wed Jan 17 12:46:31 2024
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from sqlalchemy import create_engine
+#from sqlalchemy import create_engine
 import plotly.io as pio
 import streamlit as st
+import psycopg2
 
 pio.templates.default = "plotly_white"
 
@@ -31,11 +32,11 @@ def create_df_from_lists(cod, name, param, value, p5, p95, comments):
     return df
 
 
-def database_conn(conn_params):
+def database_conn():
 
-    engine = create_engine(conn_params)
-    conn = engine.connect()
-    #my_db.connect(**st.secrets.connections.postgresql)
+    #engine = create_engine(conn_params)
+    #conn = engine.connect()
+    conn = init_connection()
     
     return conn
 
@@ -157,6 +158,13 @@ def historic_review(historic_data, analysis_data, cod_stations, param_columns):
     return
 
 
+# Initialize connection.
+# Uses st.experimental_singleton to only run once.
+@st.experimental_singleton
+def init_connection():
+    return psycopg2.connect(**st.secrets["postgresql"])
+
+
 def join_dfs(df1, df2, field, mode):
 
     merged = df1.merge(df2, on=field, how=mode)
@@ -206,6 +214,13 @@ def plot_regression(df, x, y, title, color=''):
     
     return
 
+
+@st.experimental_memo(ttl=600)
+def run_query(query, conn):
+    with conn.cursor() as cur:
+        cur.execute(query)
+        return cur.fetchall()
+    
 
 def query_field_data(min_date, max_date):
 
