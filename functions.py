@@ -11,7 +11,7 @@ import plotly.express as px
 #from sqlalchemy import create_engine
 import plotly.io as pio
 import streamlit as st
-import psycopg2
+import psycopg2-binary
 
 pio.templates.default = "plotly_white"
 
