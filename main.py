@@ -41,9 +41,9 @@ if LAB_FILE is not None:
 
         QUERY_EST = """SELECT est, nombre FROM red_calidad.estaciones_rios"""
         QUERY_HISTORIC ="""SELECT est, ph_lab, cond_lab, mat_org, cl, so4, no3, no2, nh4, ptot, po4, solidos_susp, tic, toc, dbo5, e_coli, coliformes_totales, dureza, ca, mg, co3, co3h, na, k, as_, cd, cr, cu, fe, hg, mn, ni, pb, se, zn FROM red_calidad.historic_rios"""
-        data_est = pd.read_csv('estaciones_rios.csv')
+        data_est = pd.read_csv('estaciones_rios.csv', low_memory=False)
         data_est = data_est[['est','nombre']]
-        data_hist = pd.read_csv('historic_rios.csv')
+        data_hist = pd.read_csv('historic_rios.csv', low_memory=False)
         data_hist = data_hist[['est','ph_lab','cond_lab','mat_org','cl','so4','no3','no2','nh4','ptot','po4','solidos_susp','tic','toc','dbo5','e_coli','coliformes_totales','dureza','ca','mg','co3','co3h','na','k','as_','cd','cr','cu','fe','hg','mn','ni','pb','se','zn']]
 
         data = pd.read_excel(LAB_FILE, converters={'Código':str}, engine='openpyxl')
@@ -56,7 +56,7 @@ if LAB_FILE is not None:
         # Convert start / end dates to datetime
         MIN_DAY = pd.to_datetime(MIN_DAY)
         MAX_DAY = pd.to_datetime(MAX_DAY)
-        data_field = pd.read_csv('rios_campo.csv')
+        data_field = pd.read_csv('rios_campo.csv', low_memory=False)
         data_field = data_field[['cod_estacion','fecha','ta_agua','ph','conductividad','od_percent','od_ppm']]    
         data_field['fecha'] = pd.to_datetime(data_field['fecha'])
         valid_df = data_field[data_field['fecha'].between(MIN_DAY, MAX_DAY)]
