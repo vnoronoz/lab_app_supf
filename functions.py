@@ -8,12 +8,10 @@ Created on Wed Jan 17 12:46:31 2024
 import pandas as pd
 import numpy as np
 import plotly.express as px
-#from sqlalchemy import create_engine
 import plotly.io as pio
 import streamlit as st
-import psycopg2
 
-pio.templates.default = "plotly_white"
+pio.templates.default = "plotly"
 
 
 # FUNCTIONS
@@ -30,15 +28,6 @@ def create_df_from_lists(cod, name, param, value, p5, p95, comments):
          })
     
     return df
-
-
-def database_conn():
-
-    #engine = create_engine(conn_params)
-    #conn = engine.connect()
-    conn = init_connection()
-    
-    return conn
 
 
 def delete_no_samples(df):
@@ -158,14 +147,6 @@ def historic_review(historic_data, analysis_data, cod_stations, param_columns):
     return
 
 
-# Initialize connection.
-# Uses st.experimental_singleton to only run once.
-
-def init_connection():
-    
-    return psycopg2.connect(**st.secrets["postgresql"])
-
-
 def join_dfs(df1, df2, field, mode):
 
     merged = df1.merge(df2, on=field, how=mode)
@@ -210,36 +191,29 @@ def plot_data(df, type_viz):
 
 def plot_regression(df, x, y, title, color=''):
     
+    '''color_dict= {'True': 'red',
+                 'False': 'lightgreen'
+                 }'''
+    
     fig = px.scatter(df, x=x, y=y, title=title, color= color, hover_name='est', hover_data=['nombre'])
-    fig.show()
+    #fig.show()
+    st.plotly_chart(fig, use_container_width=True, theme=None)
     
     return
 
 
-def run_query(query, conn):
+def rename_cols_field_data(df):
     
-    with conn.cursor() as cur:
-        
-        cur.execute(query)
-        
-        return (pd.DataFrame(cur.fetchall()))
+    renamed = df.rename(columns = {
+        df.columns[0]: 'est',
+        df.columns[3]: 'ph_insitu',
+        df.columns[4]: 'cond_insitu',
+        df.columns[5]: 'o2percent_insitu',
+        df.columns[6]: 'o2_insitu'
+        })
     
+    return renamed
 
-def query_field_data(min_date, max_date):
-
-    # SQL query para la consulta a la tabla de muestreos de campo
-    query = """SELECT cod_estacion, ta_agua, ph,\
-    conductividad, od_percent, od_ppm FROM red_calidad.rios_campo\
-    WHERE fecha::date >= '{}' AND fecha::date <= '{}'""".format(min_date, max_date)
-        
-    return query
-
-
-def query_db_tables(query_string, connection):
-
-    df = pd.read_sql_query(query_string, con=connection)
-        
-    return df
 
 
 def rename_cols_original_file(df):
