@@ -46,7 +46,7 @@ if LAB_FILE is not None:
         data_hist = pd.read_csv('historic_rios.csv', low_memory=False)
         data_hist = data_hist[['est','ph_lab','cond_lab','mat_org','cl','so4','no3','no2','nh4','ptot','po4','solidos_susp','tic','toc','dbo5','e_coli','coliformes_totales','dureza','ca','mg','co3','co3h','na','k','as_','cd','cr','cu','fe','hg','mn','ni','pb','se','zn']]
 
-        data = pd.read_excel(LAB_FILE, converters={'Código':str}, engine='openpyxl')
+        data = pd.read_excel(LAB_FILE, converters={'Código':str})
         data_r = f.rename_cols_original_file(data)
         df_analysis = f.file_processing(data_r)
         f.replace_comma(df_analysis, PROCESSING_COLS)
